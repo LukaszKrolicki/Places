@@ -14,13 +14,12 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="CustomActionBarTheme" parent="@style/Theme.AppCompat.Light.NoActionBar">
+    <style name="CustomActionBarTheme" parent="@style/Theme.MaterialComponents.Light.NoActionBar">
         <item name="android:statusBarColor">@color/primary</item>
     </style>
 
-    <style name="CustomToolBarStyle">
-        <item name="android:textColorPrimary">@color/white</item>
-        <item name="android:colorControlNormal">@color/white</item>
+    <style name="ToolbarTheme" parent="@style/ThemeOverlay.AppCompat.ActionBar">
+        <item name="colorControlNormal">@color/primary</item>
     </style>
 
 </resources>

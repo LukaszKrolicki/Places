@@ -11,14 +11,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Places"
         tools:targetApi="31">
+
         <activity
             android:name=".AddHappyPlaceActivity"
             android:exported="false"
-
             android:screenOrientation="portrait"
-            android:label="ADD HAPPY PLACE"
-            android:theme="@style/CustomToolBarStyle"
+            android:theme="@style/CustomActionBarTheme"
             />
+
         <activity
             android:name=".MainActivity"
             android:exported="true">

@@ -1,17 +1,25 @@
 package eu.pl.snk.senseibunny.places
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.provider.Settings
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
@@ -60,7 +68,7 @@ class AddHappyPlaceActivity : AppCompatActivity() {
             pictureDialog.setItems(pictureDialogItems) { dialog, which ->
                 when(which){
                     0->chooseFromGallery()
-                    1-> Toast.makeText(this, "Camera selection coming soon", Toast.LENGTH_SHORT).show()
+                    1-> takeApic()
                 }
             }
             pictureDialog.show()
@@ -76,7 +84,8 @@ class AddHappyPlaceActivity : AppCompatActivity() {
         ).withListener(object: MultiplePermissionsListener {
 
                 override fun onPermissionsChecked(report: MultiplePermissionsReport) {if(report.areAllPermissionsGranted()){
-                    Toast.makeText(this@AddHappyPlaceActivity, "Permission Granted", Toast.LENGTH_SHORT).show()
+                    val pickInent= Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                    GalleryLaucnher.launch(pickInent)
                 }
 
                 }
@@ -86,6 +95,50 @@ class AddHappyPlaceActivity : AppCompatActivity() {
                 }
             }).onSameThread().check();
 
+    }
+
+    private val GalleryLaucnher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result->
+            if(result.resultCode== RESULT_OK && result.data!=null){
+
+
+                binding?.imagePlaceholder?.setImageURI(result.data?.data) // setting background of our app
+            }
+        }
+
+    private fun takeApic(){
+        if(ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)!= PackageManager.PERMISSION_GRANTED){
+            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            startActivityForResult(intent, CAMERA)
+        }
+        else{
+            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.CAMERA), CAMERA)
+        }
+    }
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if(requestCode == CAMERA){
+            if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                startActivityForResult(intent, CAMERA)
+            }
+            else{
+                Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(resultCode== Activity.RESULT_OK && requestCode == CAMERA){
+            val thumbnail: Bitmap = data?.extras?.get("data") as Bitmap
+            binding?.imagePlaceholder?.setImageBitmap(thumbnail)
+        }
     }
 
     private fun showRationaleDialogForPermissions(){
@@ -126,6 +179,11 @@ class AddHappyPlaceActivity : AppCompatActivity() {
         dpd.datePicker.maxDate= System.currentTimeMillis()-86400000 // setting max date to yesterday
         dpd.show()
 
+    }
+
+    companion object {
+        private const val GALLERY=1
+        private const val CAMERA=2
     }
 
 }

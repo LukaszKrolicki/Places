@@ -134,10 +134,11 @@
 
 
                 <ImageView
+                    android:id="@+id/imagePlaceholder"
                     android:layout_marginHorizontal="10dp"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:src="@drawable/upload"
+                    android:background="@drawable/upload"
                     />
 
 

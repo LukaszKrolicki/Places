@@ -13,4 +13,6 @@
     <color name="primaryLight">#adcbe3</color>
     <color name="primaryLightV2">#e7eff6</color>
     <color name="LIGHT">#63ace5</color>
+
+    <color name="grey">#d6d6d6</color>
 </resources>

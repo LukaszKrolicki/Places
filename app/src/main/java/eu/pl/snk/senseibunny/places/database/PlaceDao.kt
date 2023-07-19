@@ -20,8 +20,8 @@ interface PlaceDao {
     suspend fun delete(placeEntity: PlaceEntity)
 
     @Query("SELECT * FROM `places-table`") //you can retrieve all data too
-    fun fetchAllEmployess():Flow<List<PlaceEntity>> //flow is part of coroutines that store data that can be changed on runtime, you dont have to notify that it changed
+    fun fetchAllPlaces():Flow<List<PlaceEntity>> //flow is part of coroutines that store data that can be changed on runtime, you dont have to notify that it changed
 
     @Query("SELECT * FROM `places-table` WHERE id=:id") //returns one row
-    fun fetchAllEmployessById(id:Int):Flow<PlaceEntity>
+    fun fetchPlacesbyId(id:Int):Flow<PlaceEntity>
 }

@@ -3,6 +3,8 @@ package eu.pl.snk.senseibunny.places
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -10,6 +12,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.provider.Settings
+import android.util.Log
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.Button
@@ -26,6 +29,10 @@ import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import eu.pl.snk.senseibunny.places.databinding.ActivityAddHappyPlaceBinding
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.OutputStream
 import java.util.*
 
 class AddHappyPlaceActivity : AppCompatActivity() {
@@ -101,6 +108,9 @@ class AddHappyPlaceActivity : AppCompatActivity() {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result->
             if(result.resultCode== RESULT_OK && result.data!=null){
 
+                val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, Uri.parse(result.data?.data?.toString()))
+               val saveImage = saveImageToInternalStorage(bitmap)
+                Log.e("Image", "Path :: $saveImage")
 
                 binding?.imagePlaceholder?.setImageURI(result.data?.data) // setting background of our app
             }
@@ -136,7 +146,11 @@ class AddHappyPlaceActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if(resultCode== Activity.RESULT_OK && requestCode == CAMERA){
+
             val thumbnail: Bitmap = data?.extras?.get("data") as Bitmap
+            val saveImage = saveImageToInternalStorage(thumbnail)
+
+            Log.e("Image", "Path :: $saveImage")
             binding?.imagePlaceholder?.setImageBitmap(thumbnail)
         }
     }
@@ -181,9 +195,28 @@ class AddHappyPlaceActivity : AppCompatActivity() {
 
     }
 
+    private fun saveImageToInternalStorage(bitmap: Bitmap):Uri {
+        val wrapper=ContextWrapper(applicationContext)
+        var file = wrapper.getDir(IMAGE_DIRECTORY, Context.MODE_PRIVATE) //file accessible only from application
+        file = File(file,"${UUID.randomUUID()}.jpg")// store image and add random id to it
+
+
+        try{
+            val stream: OutputStream = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+            stream.flush()
+            stream.close()
+        }catch (e:IOException){
+            e.printStackTrace()
+        }
+
+        return Uri.parse(file.absolutePath)
+    }
+
     companion object {
         private const val GALLERY=1
         private const val CAMERA=2
+        private const val IMAGE_DIRECTORY="PlacesImages"
     }
 
 }

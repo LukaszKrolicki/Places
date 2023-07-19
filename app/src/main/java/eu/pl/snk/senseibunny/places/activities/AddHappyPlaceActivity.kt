@@ -1,4 +1,4 @@
-package eu.pl.snk.senseibunny.places
+package eu.pl.snk.senseibunny.places.activities
 
 import android.app.Activity
 import android.app.AlertDialog
@@ -23,12 +23,18 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
+import eu.pl.snk.senseibunny.places.R
+import eu.pl.snk.senseibunny.places.database.PlaceApp
+import eu.pl.snk.senseibunny.places.database.PlaceDao
+import eu.pl.snk.senseibunny.places.database.PlaceEntity
 import eu.pl.snk.senseibunny.places.databinding.ActivityAddHappyPlaceBinding
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -44,6 +50,8 @@ class AddHappyPlaceActivity : AppCompatActivity() {
     private var buttonAnim: Button ?=null
 
     private var animation: Animation?= null
+
+    public var saveImage : String?=   null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddHappyPlaceBinding.inflate(layoutInflater)
@@ -63,11 +71,6 @@ class AddHappyPlaceActivity : AppCompatActivity() {
             clickDatePicker()
         }
 
-        buttonAnim=binding?.breathButton
-
-        animation= AnimationUtils.loadAnimation(this,R.anim.breath)
-        buttonAnim?.startAnimation(animation)
-
         binding?.uploadImage?.setOnClickListener{
             val pictureDialog = AlertDialog.Builder(this)
             pictureDialog.setTitle("Select Action")
@@ -81,6 +84,34 @@ class AddHappyPlaceActivity : AppCompatActivity() {
             pictureDialog.show()
         }
 
+        buttonAnim=binding?.breathButton
+
+        animation= AnimationUtils.loadAnimation(this, R.anim.breath)
+        buttonAnim?.startAnimation(animation)
+
+        val placeDao = (application as PlaceApp).db.placesDao()
+
+        binding?.breathButton?.setOnClickListener{
+            saveRecord(placeDao)
+        }
+
+
+    }
+
+    private fun saveRecord(placeDao: PlaceDao){
+        val title = binding?.title?.text.toString()
+        val description = binding?.desc?.text.toString()
+        val date = binding?.date?.text.toString()
+        val location = binding?.location?.text.toString()
+
+        if(title.isNotEmpty()){
+            lifecycleScope.launch{
+            placeDao.insert(PlaceEntity(title=title, description = description, date = date, location = location, image = saveImage.toString()))
+            }
+        }
+        else{
+            Toast.makeText(this, "Title cannot be empty", Toast.LENGTH_SHORT).show()
+        }
 
     }
 
@@ -109,7 +140,7 @@ class AddHappyPlaceActivity : AppCompatActivity() {
             if(result.resultCode== RESULT_OK && result.data!=null){
 
                 val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, Uri.parse(result.data?.data?.toString()))
-               val saveImage = saveImageToInternalStorage(bitmap)
+                saveImage = saveImageToInternalStorage(bitmap).toString()
                 Log.e("Image", "Path :: $saveImage")
 
                 binding?.imagePlaceholder?.setImageURI(result.data?.data) // setting background of our app
@@ -148,7 +179,7 @@ class AddHappyPlaceActivity : AppCompatActivity() {
         if(resultCode== Activity.RESULT_OK && requestCode == CAMERA){
 
             val thumbnail: Bitmap = data?.extras?.get("data") as Bitmap
-            val saveImage = saveImageToInternalStorage(thumbnail)
+            saveImage = saveImageToInternalStorage(thumbnail).toString()
 
             Log.e("Image", "Path :: $saveImage")
             binding?.imagePlaceholder?.setImageBitmap(thumbnail)

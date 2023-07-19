@@ -1,4 +1,4 @@
-package eu.pl.snk.senseibunny.places
+package eu.pl.snk.senseibunny.places.activities
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -14,7 +14,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding?.root) // top element of xml file is root
 
         binding?.fabAddHappyPlace?.setOnClickListener{
-            val intent = Intent(this,AddHappyPlaceActivity::class.java)
+            val intent = Intent(this, AddHappyPlaceActivity::class.java)
             startActivity(intent)
         }
     }

@@ -1,11 +1,16 @@
 package eu.pl.snk.senseibunny.places.rvplaces
 
+import android.content.Intent
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 import eu.pl.snk.senseibunny.places.R
+import eu.pl.snk.senseibunny.places.activities.AddHappyPlaceActivity
+import eu.pl.snk.senseibunny.places.activities.MainActivity
+import eu.pl.snk.senseibunny.places.activities.PlaceDetailActivity
 import eu.pl.snk.senseibunny.places.database.PlaceEntity
 import eu.pl.snk.senseibunny.places.databinding.PlaceItemBinding
 
@@ -40,6 +45,11 @@ class PlaceItemAdapter (private val items: ArrayList<PlaceEntity>): RecyclerView
 
         if(position%2!=0){
             holder.rl.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.white))
+        }
+
+        holder.rl.setOnClickListener{
+            val intent = Intent(context, PlaceDetailActivity::class.java)
+            context.startActivity(intent)
         }
 
     }

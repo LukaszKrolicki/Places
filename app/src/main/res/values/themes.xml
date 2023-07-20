@@ -22,4 +22,13 @@
         <item name="colorControlNormal">@color/primary</item>
     </style>
 
+    <style name="Theme.Places.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.Places.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.Places.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
 </resources>

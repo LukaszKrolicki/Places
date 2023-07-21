@@ -34,6 +34,7 @@ import eu.pl.snk.senseibunny.places.database.PlaceApp
 import eu.pl.snk.senseibunny.places.database.PlaceDao
 import eu.pl.snk.senseibunny.places.database.PlaceEntity
 import eu.pl.snk.senseibunny.places.databinding.ActivityAddHappyPlaceBinding
+import eu.pl.snk.senseibunny.places.models.PlaceModel
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -91,10 +92,55 @@ class AddHappyPlaceActivity : AppCompatActivity() {
 
         val placeDao = (application as PlaceApp).db.placesDao()
 
-        binding?.breathButton?.setOnClickListener{
-            saveRecord(placeDao)
+
+
+
+        if(intent.hasExtra("place")){
+            supportActionBar?.title="Edit Place"
+
+            val place = intent.getSerializableExtra("place") as PlaceModel;
+            binding?.title?.setText(place.title)
+            binding?.desc?.setText(place.description)
+            binding?.date?.setText(place.date)
+            binding?.location?.setText(place.location)
+            binding?.imagePlaceholder?.setImageURI(Uri.parse(place.image))
+
+            val id = place.id
+
+            val requestCode=intent.getIntExtra("requestCode",0) as Int
+
+            if(requestCode==0){
+                binding?.breathButton?.setText("Update Place")
+                binding?.breathButton?.setOnClickListener{
+                    updateRecord(placeDao,id)
+                }
+            }
+
+
+        }else{
+            binding?.breathButton?.setText("Insert Place")
+            binding?.breathButton?.setOnClickListener{
+                saveRecord(placeDao)
+            }
         }
 
+
+    }
+
+    private fun updateRecord(placeDao: PlaceDao, id:Int){
+        val title = binding?.title?.text.toString()
+        val description = binding?.desc?.text.toString()
+        val date = binding?.date?.text.toString()
+        val location = binding?.location?.text.toString()
+
+        if(title.isNotEmpty()){
+            lifecycleScope.launch{
+                placeDao.update(PlaceEntity(id=id,title=title, description = description, date = date, location = location, image = saveImage.toString()))
+            }
+        }
+        else{
+            Toast.makeText(this, "Title cannot be empty", Toast.LENGTH_SHORT).show()
+        }
 
     }
 

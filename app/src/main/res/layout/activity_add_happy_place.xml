@@ -41,7 +41,7 @@
                     android:layout_height="wrap_content"
                     android:imeOptions="actionGo"
                     android:hint="title"
-                    android:inputType="numberDecimal"
+
                     android:textColor="#363A43"
                     android:textColorHint="#7A8089" />
 
@@ -60,7 +60,7 @@
                     android:layout_height="wrap_content"
                     android:imeOptions="actionGo"
                     android:hint="description"
-                    android:inputType="numberDecimal"
+
                     android:textColor="#363A43"
                     android:textColorHint="#7A8089" />
 
@@ -101,7 +101,7 @@
                     android:layout_height="wrap_content"
                     android:imeOptions="actionGo"
                     android:hint="location"
-                    android:inputType="numberDecimal"
+
                     android:textColor="#363A43"
                     android:textColorHint="#7A8089" />
 

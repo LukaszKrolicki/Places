@@ -5,11 +5,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import eu.pl.snk.senseibunny.places.database.PlaceApp
 import eu.pl.snk.senseibunny.places.database.PlaceEntity
 import eu.pl.snk.senseibunny.places.databinding.ActivityMainBinding
 import eu.pl.snk.senseibunny.places.rvplaces.PlaceItemAdapter
+import eu.pl.snk.senseibunny.places.utils.SwipeToEditCallback
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -45,6 +48,19 @@ class MainActivity : AppCompatActivity() {
             binding?.rvData?.adapter=itemAdapter
             binding?.rvData?.visibility= View.VISIBLE
 
+
+            val editSwipeHandler = object : SwipeToEditCallback(this) {
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    itemAdapter.notifyEditItem(
+                        this@MainActivity,
+                        viewHolder.adapterPosition,
+                        0
+                    )
+                }
+            }
+
+            val editItemTouchHelper = ItemTouchHelper(editSwipeHandler)
+            editItemTouchHelper.attachToRecyclerView(binding?.rvData)
 
         }
 

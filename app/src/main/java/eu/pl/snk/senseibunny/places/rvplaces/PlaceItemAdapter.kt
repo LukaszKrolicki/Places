@@ -7,19 +7,24 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import eu.pl.snk.senseibunny.places.R
 import eu.pl.snk.senseibunny.places.activities.AddHappyPlaceActivity
 import eu.pl.snk.senseibunny.places.activities.MainActivity
 import eu.pl.snk.senseibunny.places.activities.PlaceDetailActivity
+import eu.pl.snk.senseibunny.places.database.PlaceDao
 import eu.pl.snk.senseibunny.places.database.PlaceEntity
 import eu.pl.snk.senseibunny.places.databinding.PlaceItemBinding
 import eu.pl.snk.senseibunny.places.models.PlaceModel
 import eu.pl.snk.senseibunny.places.utils.SwipeToEditCallback
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
-class PlaceItemAdapter (private val items: ArrayList<PlaceEntity>): RecyclerView.Adapter<PlaceItemAdapter.ViewHolder>() {
+class PlaceItemAdapter (private var items: ArrayList<PlaceEntity>): RecyclerView.Adapter<PlaceItemAdapter.ViewHolder>() {
 
     var place1: PlaceModel? = null
 
@@ -64,6 +69,7 @@ class PlaceItemAdapter (private val items: ArrayList<PlaceEntity>): RecyclerView
 
 
 
+
     }
 
 
@@ -78,10 +84,27 @@ class PlaceItemAdapter (private val items: ArrayList<PlaceEntity>): RecyclerView
         activity.startActivityForResult(
             intent,
             requestCode
+
         ) // Activity is started with requestCode
 
-        notifyItemChanged(position) // Notify any registered observers that the item at position has changed.
+        notifyItemChanged(position)
     }
 
+    fun notifyDeleteItem(activity: Activity, position: Int, requestCode: Int):PlaceEntity {
+        val item=items[position]
+        deleteItem(position)
+        return item
+    }
+
+    fun deleteItem(position: Int){
+        if(items.size>=-1) {
+            items.removeAt(position)
+            notifyItemRemoved(position)
+        }
+    }
+
+    fun updateList(items: ArrayList<PlaceEntity>){
+        this.items =items
+    }
 
 }

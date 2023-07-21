@@ -65,7 +65,8 @@ class AddHappyPlaceActivity : AppCompatActivity() {
         }
 
         binding?.toolBar?.setNavigationOnClickListener{
-            onBackPressed()
+            onBackPressedDispatcher.onBackPressed()
+
         }
 
         binding?.date?.setOnClickListener{

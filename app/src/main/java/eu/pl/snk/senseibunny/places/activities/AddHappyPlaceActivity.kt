@@ -58,6 +58,10 @@ class AddHappyPlaceActivity : AppCompatActivity() {
 
     public var saveImage : String?=   null
 
+    public var mLatitude: Double = 0.0
+
+    public var mLongitude: Double = 0.0
+
     private val startAutocomplete : ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult())
         { result ->
@@ -65,8 +69,8 @@ class AddHappyPlaceActivity : AppCompatActivity() {
                 val intent: Intent = result.data!!
                 val place = Autocomplete.getPlaceFromIntent(intent)
                 binding?.location?.setText(place.address)
-                var mLatitude=place.latLng!!.latitude
-                var mLongitude=place.latLng!!.longitude
+                mLatitude=place.latLng!!.latitude
+                mLongitude=place.latLng!!.longitude
 
             } else if (result.resultCode == RESULT_CANCELED) {
                 // The user canceled the operation, will work on on back Pressed
@@ -188,7 +192,7 @@ class AddHappyPlaceActivity : AppCompatActivity() {
 
         if(title.isNotEmpty()){
             lifecycleScope.launch{
-                placeDao.update(PlaceEntity(id=id,title=title, description = description, date = date, location = location, image = saveImage.toString()))
+                placeDao.update(PlaceEntity(id=id,title=title, description = description, date = date, location = location, image = saveImage.toString(),longitude=mLongitude, latitude = mLatitude))
             }
         }
         else{
@@ -205,7 +209,7 @@ class AddHappyPlaceActivity : AppCompatActivity() {
 
         if(title.isNotEmpty()){
             lifecycleScope.launch{
-            placeDao.insert(PlaceEntity(title=title, description = description, date = date, location = location, image = saveImage.toString()))
+            placeDao.insert(PlaceEntity(title=title, description = description, date = date, location = location, image = saveImage.toString(), longitude=mLongitude, latitude = mLatitude))
             }
         }
         else{

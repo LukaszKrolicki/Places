@@ -61,7 +61,27 @@
                 android:id="@+id/desc"
                 />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="Button Text"
+                android:textSize="16sp"
+                android:textColor="#000000"
+                android:id="@+id/button_text"
+                />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="View on map"
+                android:id="@+id/map_button"
+                android:gravity="center_horizontal"
+                android:layout_gravity="center_horizontal"
+                />
+
         </LinearLayout>
+
 
     </ScrollView>
 

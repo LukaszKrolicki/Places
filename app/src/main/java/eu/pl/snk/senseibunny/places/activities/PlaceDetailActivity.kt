@@ -1,5 +1,6 @@
 package eu.pl.snk.senseibunny.places.activities
 
+import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -30,11 +31,15 @@ class PlaceDetailActivity : AppCompatActivity() {
 
         val place = intent.getSerializableExtra("place") as PlaceModel;
 
-
-
         binding?.title?.text=place.title
         binding?.desc?.text=place.description
         binding?.image?.setImageURI(Uri.parse(place.image))
+
+        binding?.mapButton?.setOnClickListener{
+            val intent = Intent(this, MapActivity::class.java)
+            intent.putExtra("place", place)
+            startActivity(intent)
+        }
     }
 
     override fun onDestroy() {

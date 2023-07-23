@@ -24,6 +24,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.widget.Autocomplete
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
@@ -53,6 +57,23 @@ class AddHappyPlaceActivity : AppCompatActivity() {
     private var animation: Animation?= null
 
     public var saveImage : String?=   null
+
+    private val startAutocomplete : ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult())
+        { result ->
+            if(result.resultCode == RESULT_OK  && result.data !=null) {
+                val intent: Intent = result.data!!
+                val place = Autocomplete.getPlaceFromIntent(intent)
+                binding?.location?.setText(place.address)
+                var mLatitude=place.latLng!!.latitude
+                var mLongitude=place.latLng!!.longitude
+
+            } else if (result.resultCode == RESULT_CANCELED) {
+                // The user canceled the operation, will work on on back Pressed
+                Toast.makeText(this@AddHappyPlaceActivity,"User canceled",Toast.LENGTH_LONG).show()
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddHappyPlaceBinding.inflate(layoutInflater)
@@ -125,6 +146,37 @@ class AddHappyPlaceActivity : AppCompatActivity() {
             }
         }
 
+
+        if(!Places.isInitialized()){
+            Places.initialize(this, resources.getString(R.string.PlacesApiKey))
+        }
+
+        binding?.location?.setOnClickListener{
+            try{
+                giveLocation()
+            }
+            catch(e: Exception){
+                Log.e("Error",e.message.toString())
+            }
+        }
+
+    }
+
+    private fun giveLocation() {
+        try {
+            // These are the list of fields which we required is passed
+            val fields = listOf(
+                Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG,
+                Place.Field.ADDRESS
+            )
+            // Start the autocomplete intent with a unique request code.
+            val intent =
+                Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields)
+                    .build(this@AddHappyPlaceActivity)
+            startAutocomplete.launch(intent)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
 
     }
 

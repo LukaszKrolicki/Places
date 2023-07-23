@@ -101,7 +101,8 @@
                     android:layout_height="wrap_content"
                     android:imeOptions="actionGo"
                     android:hint="location"
-
+                    android:focusableInTouchMode="false"
+                    android:focusable="false"
                     android:textColor="#363A43"
                     android:textColorHint="#7A8089" />
 

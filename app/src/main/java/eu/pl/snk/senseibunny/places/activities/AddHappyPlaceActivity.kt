@@ -1,5 +1,7 @@
 package eu.pl.snk.senseibunny.places.activities
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.DatePickerDialog
@@ -8,8 +10,11 @@ import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.location.LocationManager
+import com.google.android.gms.location.LocationRequest
 import android.net.Uri
 import android.os.Bundle
+import android.os.Looper
 import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
@@ -24,6 +29,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import com.google.android.gms.location.*
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.Autocomplete
@@ -61,6 +67,8 @@ class AddHappyPlaceActivity : AppCompatActivity() {
     public var mLatitude: Double = 0.0
 
     public var mLongitude: Double = 0.0
+
+    private lateinit var LocationProvider: FusedLocationProviderClient
 
     private val startAutocomplete : ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult())
@@ -164,8 +172,64 @@ class AddHappyPlaceActivity : AppCompatActivity() {
             }
         }
 
+        LocationProvider=LocationServices.getFusedLocationProviderClient(this)
+
+        binding?.locationButton?.setOnClickListener{
+            if(isLocationEnabled().equals(false)){ //if location is disabled go to sett
+                Toast.makeText(this,"Location is not enabled",Toast.LENGTH_LONG).show()
+
+                val Intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                startActivity(Intent)
+            }else{ //else we want to get permissions
+                Dexter.withActivity(this).withPermissions(
+                    Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION
+                ).withListener(object: MultiplePermissionsListener{
+                    override fun onPermissionsChecked(report: MultiplePermissionsReport) {
+                        if(report.areAllPermissionsGranted()){
+                            Toast.makeText(this@AddHappyPlaceActivity,"Location Enabled",Toast.LENGTH_LONG  ).show()
+                            requestNewLocationData()
+                        }
+                    }
+
+                    override fun onPermissionRationaleShouldBeShown(
+                        p0: MutableList<PermissionRequest>?,
+                        p1: PermissionToken?
+                    ) {
+                        showRationaleDialogForPermissions()
+                    }
+                }).onSameThread().check()
+            }
+        }
+
     }
 
+    @SuppressLint("MissingPermission")
+    private fun requestNewLocationData() {
+        val mLocationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000)
+            .setWaitForAccurateLocation(false)
+            .setMinUpdateIntervalMillis(500)
+            .setMaxUpdateDelayMillis(1000)
+            .build()
+
+        LocationProvider.requestLocationUpdates(
+            mLocationRequest,
+            mLocationCallback,
+            Looper.myLooper()
+        )
+    }
+
+    private val mLocationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult) {
+            val mLastLocation = locationResult.lastLocation
+            mLatitude=mLastLocation!!.latitude
+            mLongitude=mLastLocation!!.longitude
+        }
+    }
+
+    private fun isLocationEnabled(): Boolean { //asking if location is enabled
+        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager // getting location manager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+    }
     private fun giveLocation() {
         try {
             // These are the list of fields which we required is passed

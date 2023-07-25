@@ -45,6 +45,8 @@ import eu.pl.snk.senseibunny.places.database.PlaceDao
 import eu.pl.snk.senseibunny.places.database.PlaceEntity
 import eu.pl.snk.senseibunny.places.databinding.ActivityAddHappyPlaceBinding
 import eu.pl.snk.senseibunny.places.models.PlaceModel
+import eu.pl.snk.senseibunny.places.utils.GetAdressFromLatLng
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -223,6 +225,23 @@ class AddHappyPlaceActivity : AppCompatActivity() {
             val mLastLocation = locationResult.lastLocation
             mLatitude=mLastLocation!!.latitude
             mLongitude=mLastLocation!!.longitude
+
+            val adressTask = GetAdressFromLatLng(this@AddHappyPlaceActivity, mLatitude, mLongitude)
+            adressTask.setCustomAddressListener(object: GetAdressFromLatLng.AdressListener{
+                override fun onAddressFound(address: String) {
+                    binding?.location?.setText(address)
+                }
+
+                override fun onError()  {
+                    Toast.makeText(this@AddHappyPlaceActivity,"Adress not found",Toast.LENGTH_LONG).show()
+                }
+            })
+
+            lifecycleScope.launch(Dispatchers.IO){
+                //CoroutineScope tied to this LifecycleOwner's Lifecycle.
+                //This scope will be cancelled when the Lifecycle is destroyed
+                adressTask.launchBackgroundProcessForRequest()  //starts the task to get the address in text from the lat and lng values
+            }
         }
     }
 
